@@ -79,7 +79,29 @@ void Player::stop() {
 }
 
 void Player::pause() {
-
+    if (!validStates()) {
+        return;
+    }
+    State ss[] = {IDLE, READY, PAUSED, PLAYING};
+    State i = elememts[0]->getState();
+    while (i > PAUSED) {
+        for (Element* e : elememts) {
+            e->setState(ss[i-1]);
+            if (e->getState() != ss[i-1]) {
+                return;
+            }
+        }
+        i = ss[i-1];
+    }
+    while (i < PAUSED) {
+        for (Element* e : elememts) {
+            e->setState(ss[i+1]);
+            if (e->getState() != ss[i+1]) {
+                return;
+            }
+        }
+        i = ss[i+1];
+    }
 }
 
 void Player::seek(int position) {
