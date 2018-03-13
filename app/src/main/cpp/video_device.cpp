@@ -35,7 +35,7 @@ public:
                 }
                 if (value) {
                     JNIEnv* env = getJNIEnv();
-                    jobject surface = static_cast<jobject>(value);
+                    surface = static_cast<jobject>(value);
                     window = ANativeWindow_fromSurface(env, surface);
                 }
                 break;
@@ -91,6 +91,11 @@ public:
                 writed = dst_linesize * frame->height;
             }
             ANativeWindow_unlockAndPost(window);
+        } else {
+            // NOTES: window may be invalid. try to got a reference from surface.
+            ANativeWindow_release(window);
+            JNIEnv* env = getJNIEnv();
+            window = ANativeWindow_fromSurface(env, surface);
         }
         ffWrapper->freeFrame(frame);
         return writed;
@@ -101,6 +106,7 @@ private:
     int format = AV_PIX_FMT_NONE;
     FFWrapper* ffWrapper = nullptr;
     ANativeWindow* window = nullptr;
+    jobject surface = nullptr;
 
 };
 

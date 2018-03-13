@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         if (surfaceCreated && isPlaying) {
-            Player.stop();
+            Player.pause();
             isPlaying = false;
         }
     }
