@@ -1,2 +1,9 @@
-build/*
+build/
 gradle*
+local.*
+.gradle/
+.idea/
+app/build/
+app/.externalNativeBuild/
+app/libs/
+
