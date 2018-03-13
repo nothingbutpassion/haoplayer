@@ -158,7 +158,7 @@ bool FFWrapper::setVideoScale(const AVFrame* frame, int dst_w, int dst_h, AVPixe
     }
     videoScaleContext = sws_getContext(
         frame->width, frame->height, (AVPixelFormat)frame->format, 
-        dst_w, dst_h, dst_pix_fmt, 
+        dst_w, dst_h, dst_pix_fmt,
         SWS_BILINEAR, nullptr, nullptr, nullptr);
     if (!videoScaleContext) {
         LOGE("sws_getContext failed: src_size=%dx%d, src_fmt=%s, dst_size=%dx%d, dst_fmt=%s",         

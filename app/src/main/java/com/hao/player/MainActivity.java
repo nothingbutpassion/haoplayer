@@ -2,26 +2,28 @@ package com.hao.player;
 
 import android.app.Activity;
 import android.graphics.PixelFormat;
-import android.media.AudioTrack;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 public class MainActivity extends Activity {
 
-    static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private boolean isPlaying = false;
+    private boolean surfaceCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // For xiaomi phone
         //String url = "/storage/6464-3563/MyFiles/videos/music.avi";
@@ -37,18 +39,25 @@ public class MainActivity extends Activity {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 Log.i(TAG, "surfaceCreated");
+                surfaceCreated = true;
                 Player.setSurface(holder.getSurface());
             }
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Log.i(TAG, "surfaceChanged");
-                Player.play();
+                if (!isPlaying) {
+                    Player.play();
+                    isPlaying = true;
+                }
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 Log.i(TAG, "surfaceDestroyed");
-                Player.stop();
+                if (isPlaying) {
+                    Player.stop();
+                }
+                surfaceCreated = false;
             }
         });
         setContentView(view);
@@ -57,11 +66,19 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (surfaceCreated && !isPlaying) {
+            Player.play();
+            isPlaying = true;
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (surfaceCreated && isPlaying) {
+            Player.stop();
+            isPlaying = false;
+        }
     }
 
 

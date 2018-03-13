@@ -1,3 +1,4 @@
+#include <chrono>
 #include <jni.h>
 #include <android/native_window_jni.h>
 #include <android/native_window.h>
@@ -72,16 +73,21 @@ public:
                  buffer.width, buffer.height, buffer.stride, buffer.format);
             if (buffer.width > 0 && buffer.height > 0) {
                 // set video scale context
-                if (width != frame->width || height != frame->height || format != frame->format) {
+                if (width != buffer.width || height != buffer.height || format != buffer.format) {
                     ffWrapper->setVideoScale(frame, buffer.width, buffer.height, AV_PIX_FMT_RGBA);
-                    width = frame->width;
-                    height = frame->height;
-                    format = frame->format;
+                    width = buffer.width;
+                    height = buffer.height;
+                    format = buffer.format;
                 }
                 // scale video
                 int dst_linesize = buffer.stride * 4;
                 uint8_t* dst_data = static_cast<uint8_t*>(buffer.bits);
+
+                using namespace std::chrono;
+                system_clock::time_point tp = system_clock::now();
                 ffWrapper->scaleVideo(frame, &dst_data, &dst_linesize);
+                system_clock::duration d = system_clock::now() - tp;
+                LOGT("scaleVideo duration is %lldms", duration_cast<milliseconds>(d).count());
                 writed = dst_linesize * frame->height;
             }
             ANativeWindow_unlockAndPost(window);
