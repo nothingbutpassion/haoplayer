@@ -20,5 +20,6 @@ public class Player {
     public native static void stop();
     public native static void seek(int position);
     public native static int getDuration();
+    public native static int getPosition();
 }
 

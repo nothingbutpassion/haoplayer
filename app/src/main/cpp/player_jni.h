@@ -14,6 +14,7 @@ JNIEXPORT void JNICALL Java_com_hao_player_Player_pause(JNIEnv*, jclass);
 JNIEXPORT void JNICALL Java_com_hao_player_Player_stop(JNIEnv*, jclass);
 JNIEXPORT void JNICALL Java_com_hao_player_Player_seek(JNIEnv*, jclass, jint);
 JNIEXPORT jint JNICALL Java_com_hao_player_Player_getDuration(JNIEnv*, jclass);
+JNIEXPORT jint JNICALL Java_com_hao_player_Player_getPosition(JNIEnv*, jclass);
 
 #ifdef __cplusplus
 }

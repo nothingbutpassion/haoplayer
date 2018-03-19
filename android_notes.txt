@@ -1,0 +1,16 @@
+1. android sudio shortcurt (ubuntu)
+Alt + Left          // navigation: back
+Alt + right         // navigation: forward
+
+2. android development notes:
+1) Full screen
+requestWindowFeature(Window.FEATURE_NO_TITLE);
+getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+2) Layout
+ConstraintLayout: 近似RelativeLayout（通过view之间，view与parent之间关系布局），但更灵活。
+
+3）Update widge Notes
+Set/Update widge should in Main/UI thread.
+

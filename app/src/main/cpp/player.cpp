@@ -37,6 +37,13 @@ Player::~Player() {
 }
 
 void Player::setDataSource(const char* url) {
+    if (!validStates()) {
+        return;
+    }
+    State s = elememts[0]->getState();
+    if (s != IDLE) {
+        return;
+    }
     demuxer.setSource(url);
 }
 
@@ -109,7 +116,21 @@ void Player::seek(int position) {
 }
 
 int Player::getDuration() {
+    if (demuxer.getState() >= READY) {
+        return demuxer.getDuration();
+    }
     return 0;
+}
+
+int Player::getPosition() {
+    if (!validStates()) {
+        return 0;
+    }
+    State s = elememts[0]->getState();
+    if (s == IDLE) {
+        return 0;
+    }
+    return clock->runningTime()/1000;
 }
 
 bool Player::validStates() {

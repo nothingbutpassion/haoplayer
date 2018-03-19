@@ -102,7 +102,16 @@ JNIEXPORT void JNICALL Java_com_hao_player_Player_seek(JNIEnv*, jclass, jint pos
 JNIEXPORT jint JNICALL Java_com_hao_player_Player_getDuration(JNIEnv*, jclass)
 {
     LOGI("Java_com_hao_player_Player_getDuration Enter");
-    Player::instance().getDuration();
+    return Player::instance().getDuration();
     LOGI("Java_com_hao_player_Player_getDuration Exit");
 }
+
+JNIEXPORT jint Java_com_hao_player_Player_getPosition(JNIEnv*, jclass)
+{
+    LOGI("Java_com_hao_player_Player_getPosition Enter");
+    return Player::instance().getPosition();
+    LOGI("Java_com_hao_player_Player_getPosition Exit");
+}
+
+
 

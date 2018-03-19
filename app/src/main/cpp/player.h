@@ -21,7 +21,8 @@ struct Player {
     void stop();
     void pause();
     void seek(int position);
-    int  getDuration();
+    int getDuration();
+    int getPosition();
 
 private:
     Player();

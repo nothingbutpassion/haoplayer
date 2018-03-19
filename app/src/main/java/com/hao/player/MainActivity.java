@@ -1,13 +1,24 @@
 package com.hao.player;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 
@@ -16,24 +27,32 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private boolean isPlaying = false;
     private boolean surfaceCreated = false;
+    private boolean stopThread = false;
+    private Handler handler = null;
+    private SeekBar seek = null;
+    private TextView position = null;
+    private TextView duration = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Request full screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+
         // For xiaomi phone
-        //String url = "/storage/6464-3563/MyFiles/videos/music.avi";
-        String url = "/sdcard/videos/music.avi";
+        String url = "/storage/6464-3563/MyFiles/videos/music.avi";
+        //String url = "/sdcard/videos/music.avi";
         if (new File(url).canRead()) {
             Player.setDataSource(url);
         }
 
-        SurfaceView view = new SurfaceView(this);
-        SurfaceHolder holder = view.getHolder();
+        SurfaceView playbackSurface = new SurfaceView(this);
+        SurfaceHolder holder = playbackSurface.getHolder();
         holder.setFormat(PixelFormat.RGBA_8888);
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -60,7 +79,62 @@ public class MainActivity extends Activity {
                 surfaceCreated = false;
             }
         });
-        setContentView(view);
+
+
+
+        position = new TextView(this);
+        position.setText(" 00:00 ");
+        position.setTextColor(Color.WHITE);
+        position.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+        seek = new SeekBar(this);
+        duration = new TextView(this);
+        duration.setText(" 00:00 ");
+        duration.setTextColor(Color.WHITE);
+        duration.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.addView(position,  new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        linearLayout.addView(seek,  new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                0.8f
+        ));
+        linearLayout.addView(duration,  new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        linearLayout.setGravity(Gravity.CENTER);
+
+        FrameLayout frameLayout = new FrameLayout(this);
+        frameLayout.addView(playbackSurface, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        frameLayout.addView(linearLayout, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+        ));
+        setContentView(frameLayout);
+
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 11) {
+                    int pos = msg.arg1/1000;
+                    int du = msg.arg2/1000;
+                    position.setText(String.format(" %02d:%02d", pos/60, pos%60));
+                    duration.setText(String.format("%02d:%02d ", du/60, du%60));
+                    seek.setMax(du);
+                    seek.setProgress(pos);
+                }
+                super.handleMessage(msg);
+            }
+        };
+
     }
 
     @Override
@@ -70,6 +144,31 @@ public class MainActivity extends Activity {
             Player.play();
             isPlaying = true;
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stopThread = false;
+                while (!stopThread) {
+                    if (surfaceCreated && isPlaying) {
+                        int pos = Player.getPosition();
+                        int du = Player.getDuration();
+                        Message msg = Message.obtain();
+                        msg.arg1 = pos;
+                        msg.arg2 = du;
+                        msg.what = 11;
+                        handler.sendMessage(msg);
+                        try {
+                            Thread.sleep(1000);
+                        }
+                        catch (Exception e) {
+
+                        }
+
+                    }
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -79,6 +178,7 @@ public class MainActivity extends Activity {
             Player.pause();
             isPlaying = false;
         }
+        stopThread = true;
     }
 
 
