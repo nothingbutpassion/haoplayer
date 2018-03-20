@@ -18,8 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 
 public class MainActivity extends Activity {
@@ -45,8 +43,8 @@ public class MainActivity extends Activity {
 
 
         // For xiaomi phone
-        String url = "/storage/6464-3563/MyFiles/videos/music.avi";
-        //String url = "/sdcard/videos/music.avi";
+        //String url = "/storage/6464-3563/MyFiles/videos/music.avi";
+        String url = "/sdcard/videos/music.avi";
         if (new File(url).canRead()) {
             Player.setDataSource(url);
         }
@@ -119,6 +117,33 @@ public class MainActivity extends Activity {
                 Gravity.BOTTOM
         ));
         setContentView(frameLayout);
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            private int mProgress = 0;
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    mProgress = progress;
+                    position.setText(String.format(" %02d:%02d", mProgress/60, mProgress%60));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (surfaceCreated) {
+                    Player.seek(1000*mProgress);
+                    isPlaying = false;
+                    Player.play();
+                    isPlaying = true;
+                }
+            }
+        });
 
         handler = new Handler() {
             @Override

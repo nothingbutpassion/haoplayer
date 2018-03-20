@@ -2,6 +2,7 @@
 Ctrl + shift + A    search command
 Ctrl + F 			search in the current file
 Ctrl + Shift + F	search any string in whole project
+Ctrl + R            replace
 
 Ctrl + H			class hierarchy
 Ctrl + F12			list outline of current file
@@ -18,7 +19,8 @@ Ctrl + Shift + 	Space 	SmartType code completion
 File -> Settings -> KeyMap
 File -> Settings -> Editor -> General -> Auto Import -> Java
 
-Select your project -> right click -> Optimize Imports
+Ctrl + Alt + O     optimize imports
+Select project/file -> right click -> Optimize Imports
 
 
 2. Notes

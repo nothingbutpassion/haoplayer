@@ -112,7 +112,30 @@ void Player::pause() {
 }
 
 void Player::seek(int position) {
-
+    if (!validStates()) {
+        return;
+    }
+    State ss[] = {IDLE, READY, PAUSED, PLAYING};
+    State i = elememts[0]->getState();
+    while (i > READY) {
+        for (Element* e : elememts) {
+            e->setState(ss[i-1]);
+            if (e->getState() != ss[i-1]) {
+                return;
+            }
+        }
+        i = ss[i-1];
+    }
+    while (i < READY) {
+        for (Element* e : elememts) {
+            e->setState(ss[i+1]);
+            if (e->getState() != ss[i+1]) {
+                return;
+            }
+        }
+        i = ss[i+1];
+    }
+    demuxer.seek(position);
 }
 
 int Player::getDuration() {

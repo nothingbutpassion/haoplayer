@@ -8,6 +8,7 @@
 void AudioRender::rendering() {
     LOGD("rendering: thread stated");
     bool pendingEOS = false;
+    bool firstFrame = true;
     for (;;) {
         // Handle events
         Event ev;
@@ -69,6 +70,10 @@ void AudioRender::rendering() {
             continue;
         }
         // Output the audio stream
+        if (firstFrame) {
+            firstFrame = false;
+            static_cast<AudioDeviceClock*>(clock)->setOffset(frame->pts * ffWrapper->audioTimeBase() * 1000000);
+        }
         audioDevice->play();
         audioDevice->write(frame, sizeof(AVFrame));
         LOGD("rendering: clock running time is %lld", clock->runningTime()/1000);

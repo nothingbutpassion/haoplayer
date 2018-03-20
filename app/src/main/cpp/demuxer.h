@@ -49,6 +49,9 @@ public:
     int getDuration() {
         return ffWrapper->duration()*1000/AV_TIME_BASE;
     }
+    void seek(int position) {
+        ffWrapper->seek(int64_t(position)*AV_TIME_BASE/1000);
+    }
 
 
 private:
