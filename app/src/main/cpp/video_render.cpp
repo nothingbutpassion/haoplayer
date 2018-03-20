@@ -86,10 +86,16 @@ void VideoRender::rendering() {
             if (offset > threshold) {
                 int64_t sleepDuration = offset - threshold;
                 // FIXME: if sleepDuration is too big, we shouldn't sleep too long duration.
-                LOGD("rendering: clock=%lldms, offset=%.6gms ( > %.6gms, sleep %lldms and write video frame)",
-                     clock->runningTime()/1000, offset, sleepDuration, threshold);
-                std::this_thread::sleep_for(milliseconds(sleepDuration));
-                videoDevice->write(frame, sizeof(AVFrame));
+                if (sleepDuration > threshold) {
+                    LOGD("rendering: clock=%lldms, offset=%.6gms ( > %.6gms, write video frame)",
+                         clock->runningTime()/1000, offset, 2*threshold);
+                    videoDevice->write(frame, sizeof(AVFrame));
+                } else {
+                    LOGD("rendering: clock=%lldms, offset=%.6gms ( > %.6gms, sleep %lldms and write video frame)",
+                         clock->runningTime()/1000, offset, sleepDuration, threshold);
+                    std::this_thread::sleep_for(milliseconds(sleepDuration));
+                    videoDevice->write(frame, sizeof(AVFrame));
+                }
             } else {
                 LOGD("rendering: clock=%lldms, offset=%.6gms ( <= %.6gms, write video frame)",
                      clock->runningTime()/1000, offset, threshold);

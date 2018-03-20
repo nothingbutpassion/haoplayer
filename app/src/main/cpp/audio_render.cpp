@@ -115,7 +115,6 @@ int AudioRender::toReady() {
         int audioSampleRate = ffWrapper->audioSampleRate();
         audioDevice->setProperty(AUDIO_ENGIN, ffWrapper);
         audioDevice->setProperty(AUDIO_SAMPLE_RATE, &audioSampleRate);
-        static_cast<AudioDeviceClock*>(clock)->setOffset(0);
         states.setCurrent(READY);
         return STATUS_SUCCESS;
     }

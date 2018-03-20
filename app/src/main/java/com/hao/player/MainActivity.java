@@ -43,8 +43,8 @@ public class MainActivity extends Activity {
 
 
         // For xiaomi phone
-        //String url = "/storage/6464-3563/MyFiles/videos/music.avi";
-        String url = "/sdcard/videos/music.avi";
+        String url = "/storage/6464-3563/MyFiles/videos/music.avi";
+        //String url = "/sdcard/videos/music.avi";
         if (new File(url).canRead()) {
             Player.setDataSource(url);
         }
@@ -153,8 +153,10 @@ public class MainActivity extends Activity {
                     int du = msg.arg2/1000;
                     position.setText(String.format(" %02d:%02d", pos/60, pos%60));
                     duration.setText(String.format("%02d:%02d ", du/60, du%60));
-                    seek.setMax(du);
-                    seek.setProgress(pos);
+                    if (du > 0) {
+                        seek.setMax(du);
+                        seek.setProgress(pos);
+                    }
                 }
                 super.handleMessage(msg);
             }
