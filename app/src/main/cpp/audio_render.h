@@ -33,18 +33,17 @@ public:
 public:
     void setEngine(FFWrapper* ffWrapper) {
         this->ffWrapper = ffWrapper;
+        audioDevice->setProperty(AUDIO_ENGIN, ffWrapper);
     }
     void setSource(Element* audioDecoder) {
         this->audioDecoder = audioDecoder;
     }
 
-//private:
+private:
     int toIdle();
     int toReady();
     int toPaused();
     int toPlaying();
-
-private:
     void rendering();
 
 private:

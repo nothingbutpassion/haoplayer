@@ -23,22 +23,6 @@ void VideoRender::rendering() {
                 LOGD("rendering: thread exited");
                 break;
             };
-            if (ev.id == EVENT_FLUSH) {
-                while (!bufferQueue.empty()) {
-                    AVFrame* frame = nullptr;
-                    bufferQueue.pop(frame);
-                    ffWrapper->freeFrame(frame);
-                }
-                LOGD("rendering: MESSAGE_FLUSH_FINISHED");
-                bus->sendMessage(Message(MESSAGE_FLUSH_FINISHED));
-                continue;
-            }
-            if (ev.id == EVENT_SEEK) {
-                pendingEOS = false;
-                LOGD("rendering: MESSAGE_SEEK_FINISHED");
-                bus->sendMessage(Message(MESSAGE_SEEK_FINISHED));
-                continue;
-            }
             if (ev.id == EVENT_EOS) {
                 pendingEOS = true;
                 continue;
@@ -138,8 +122,6 @@ int VideoRender::toReady() {
     }
 
     if (current == IDLE) {
-        videoDevice->setProperty(VIDEO_ENGIN, ffWrapper);
-        videoDevice->setProperty(VIDEO_SURFACE, surface);
         states.setCurrent(READY);
         return STATUS_SUCCESS;
     } 

@@ -27,27 +27,6 @@ void Demuxer::demuxing() {
                 LOGD("demuxing: thread exited");
                 break;
             };
-            if (ev.id == EVENT_FLUSH) {
-                if (!pendingPackets.empty()) {
-                    ffWrapper->freePacket(pendingPackets.front());
-                    pendingPackets.clear();
-                }
-                LOGD("demuxing: MESSAGE_FLUSH_FINISHED");
-                bus->sendMessage(Message(MESSAGE_FLUSH_FINISHED, this));
-                continue;
-            }
-            if (ev.id == EVENT_SEEK) {
-                int64_t pos = (int64_t) ev.data;
-                if (!ffWrapper->seek(pos)) {
-                    LOGE("demuxing: EVENT_SEEK_FAILED");
-                    bus->sendMessage(Message(MESSAGE_ERROR_SEEK, this));
-                } else {
-                    isEOS = false;
-                    LOGE("demuxing: MESSAGE_SEEK_FINISHED");
-                    bus->sendMessage(Message(MESSAGE_SEEK_FINISHED, this));
-                }
-                continue;
-            };
             continue;
         }
 

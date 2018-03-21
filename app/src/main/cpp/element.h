@@ -5,16 +5,13 @@
 #include "bus.h"
 
 #define EVENT_STOP_THREAD   0x01
-#define EVENT_SEEK          0x02
-#define EVENT_EOS           0x04
-#define EVENT_FLUSH         0x08
+#define EVENT_EOS           0x02
 
 #define BUFFER_AVPACKET     0x01
 #define BUFFER_AVFRAME      0x02
 
 #define STATUS_FAILED       -1
 #define STATUS_SUCCESS      0
-#define STATUS_PENDING      1
 
 struct Event {
     Event(int id, void* data) : id(id), data(data) {}

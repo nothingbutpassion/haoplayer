@@ -24,24 +24,6 @@ void AudioRender::rendering() {
                 LOGD("rendering: thread exited");
                 break;
             };
-            if (ev.id == EVENT_FLUSH) {
-                audioDevice->pause();
-                audioDevice->flush();
-                while (!bufferQueue.empty()) {
-                    AVFrame* frame = nullptr;
-                    bufferQueue.pop(frame);
-                    ffWrapper->freeFrame(frame);
-                }
-                LOGD("rendering: MESSAGE_FLUSH_FINISHED");
-                bus->sendMessage(Message(MESSAGE_FLUSH_FINISHED, this));
-                continue;
-            }
-            if (ev.id == EVENT_SEEK) {
-                pendingEOS = false;
-                LOGD("rendering: MESSAGE_SEEK_FINISHED");
-                bus->sendMessage(Message(MESSAGE_SEEK_FINISHED, this));
-                continue;
-            }
             if (ev.id == EVENT_EOS) {
                 pendingEOS = true;
                 continue;
@@ -113,7 +95,6 @@ int AudioRender::toReady() {
 
     if (current == IDLE) {
         int audioSampleRate = ffWrapper->audioSampleRate();
-        audioDevice->setProperty(AUDIO_ENGIN, ffWrapper);
         audioDevice->setProperty(AUDIO_SAMPLE_RATE, &audioSampleRate);
         states.setCurrent(READY);
         return STATUS_SUCCESS;

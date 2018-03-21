@@ -39,7 +39,7 @@ public:
         this->videoDecoder = videoDecoder;
     }
     void setSurface(void* surface) {
-        this->surface = surface;
+        videoDevice->setProperty(VIDEO_SURFACE, surface);
     }
 
 private:
@@ -47,8 +47,6 @@ private:
     int toReady();
     int toPaused();
     int toPlaying();
-
-private:
     void rendering();
 
 private:

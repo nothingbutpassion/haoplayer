@@ -46,8 +46,6 @@ private:
     int toReady();
     int toPaused();
     int toPlaying();
-
-private:
     void decoding();
 
 private:

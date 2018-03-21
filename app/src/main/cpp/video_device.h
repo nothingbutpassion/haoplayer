@@ -3,9 +3,7 @@
 #include <string>
 
 #define VIDEO_ENGIN     0x01
-#define VIDEO_WIDTH     0x02
-#define VIDEO_HEIGHT    0x04
-#define VIDEO_SURFACE   0x08
+#define VIDEO_SURFACE   0x02
 
 struct VideoDevice {
     static VideoDevice* create(const std::string name);

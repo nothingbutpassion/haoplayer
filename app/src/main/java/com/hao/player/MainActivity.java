@@ -43,8 +43,8 @@ public class MainActivity extends Activity {
 
 
         // For xiaomi phone
-        String url = "/storage/6464-3563/MyFiles/videos/music.avi";
-        //String url = "/sdcard/videos/music.avi";
+        //String url = "/storage/6464-3563/MyFiles/videos/music.avi";
+        String url = "/sdcard/videos/music.avi";
         if (new File(url).canRead()) {
             Player.setDataSource(url);
         }
@@ -77,8 +77,6 @@ public class MainActivity extends Activity {
                 surfaceCreated = false;
             }
         });
-
-
 
         position = new TextView(this);
         position.setText(" 00:00 ");

@@ -3,13 +3,8 @@
 #include "utils.h"
 
 #define MESSAGE_ERROR_SOURCE        -1
-#define MESSAGE_ERROR_FLUSH         -2
-#define MESSAGE_ERROR_DECODE        -3
-#define MESSAGE_ERROR_SEEK          -4
-               
+#define MESSAGE_ERROR_DECODE        -2
 #define MESSAGE_EOS                  1
-#define MESSAGE_SEEK_FINISHED        2
-#define MESSAGE_FLUSH_FINISHED       3   
 
 struct Message {
     Message(int id, void* data) : id(id), data(data) {}

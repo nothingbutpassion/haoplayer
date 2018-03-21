@@ -151,7 +151,7 @@ int getAudioTrackPlayState(jobject audioTrack) {
 
 void stopAudioTrack(jobject audioTrack) {
     //
-    // void play()
+    // void stop()
     //
     callVoidMethod(audioTrack, "stop", "()V");
 }

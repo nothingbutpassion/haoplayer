@@ -22,12 +22,6 @@ public:
             case VIDEO_ENGIN:
                 ffWrapper = static_cast<FFWrapper*>(value);
                 break;
-            case VIDEO_WIDTH:
-                width = *static_cast<int*>(value);
-                break;
-            case VIDEO_HEIGHT:
-                height = *static_cast<int*>(value);
-                break;
             case VIDEO_SURFACE:
                 if (window) {
                     ANativeWindow_release(window);
@@ -87,7 +81,7 @@ public:
                 system_clock::time_point tp = system_clock::now();
                 ffWrapper->scaleVideo(frame, &dst_data, &dst_linesize);
                 system_clock::duration d = system_clock::now() - tp;
-                LOGT("scaleVideo duration is %lldms", duration_cast<milliseconds>(d).count());
+                LOGD("scaleVideo duration is %lldms", duration_cast<milliseconds>(d).count());
                 writed = dst_linesize * frame->height;
             }
             ANativeWindow_unlockAndPost(window);

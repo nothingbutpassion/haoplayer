@@ -41,13 +41,11 @@ public:
         this->audioSink = audioSink;
     }
 
-//private:
+private:
     int toIdle();
     int toReady();
     int toPaused();
     int toPlaying();
-
-private:
     void decoding();
 
 private:

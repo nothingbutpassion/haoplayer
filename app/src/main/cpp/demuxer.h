@@ -44,8 +44,6 @@ public:
     void setVideoSink(Element* videoSink) {
         this->videoSink = videoSink;
     }
-
-public:
     int getDuration() {
         return ffWrapper->duration()*1000/AV_TIME_BASE;
     }
@@ -53,15 +51,11 @@ public:
         ffWrapper->seek(int64_t(position)*AV_TIME_BASE/1000);
     }
 
-
 private:
     int toIdle();
     int toReady();
     int toPaused();
     int toPlaying();
-
-    
-private:
     void demuxing();
 
 private:

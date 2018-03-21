@@ -26,26 +26,6 @@ void AudioDecoder::decoding() {
                 LOGD("demuxing: thread exited");
                 break;
             };
-            if (ev.id == EVENT_FLUSH) {
-                if (pendingFrame) {
-                    ffWrapper->freeFrame(pendingFrame);
-                    pendingFrame = nullptr;
-                }
-                while (!bufferQueue.empty()) {
-                    AVPacket p;
-                    bufferQueue.pop(p);
-                    ffWrapper->freePacket(p);
-                }
-                LOGD("decoding: MESSAGE_FLUSH_FINISHED");
-                bus->sendMessage(Message(MESSAGE_FLUSH_FINISHED, this));
-                continue;
-            }
-            if (ev.id == EVENT_SEEK) {
-                pendingEOS = false;
-                LOGD("decoding: MESSAGE_FLUSH_FINISHED");
-                bus->sendMessage(Message(MESSAGE_SEEK_FINISHED, this));
-                continue;
-            }
             if (ev.id == EVENT_EOS) {
                 pendingEOS = true;
                 audioSink->sendEvent(Event(EVENT_EOS));
