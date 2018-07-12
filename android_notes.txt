@@ -68,8 +68,8 @@ systemProp.https.nonProxyHosts=*.nonproxyrepos.com|localhost
 cd <project-root>
 ./gradlew <task>				// Build某个task
 ./gradlew tasks					// 查看所有task
-./gradlew assembleDebug			// Build Debug版本apk（生成的apk路径：<project-root>/app/outputs/apk/debug/xxx.apk）
-./gradlew assembleRelease		// Build Release版本apk（生成的apk路径：<project-root>/app/outputs/apk/release/xxx.apk）
+./gradlew assembleDebug			// Build Debug版本apk（生成的apk路径：<project-root>/build/app/outputs/apk/debug/xxx.apk）
+./gradlew assembleRelease		// Build Release版本apk（生成的apk路径：<project-root>/build/app/outputs/apk/release/xxx.apk）
 ./gradlew --help				// 查看帮助
 注：阅读gradlew脚本的源码，某些环境变量，如：JAVA_HOME需要设置正确: 应该设置成JDK目录（而不是JRE目录）
 
