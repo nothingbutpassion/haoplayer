@@ -47,8 +47,7 @@ void Demuxer::demuxing() {
             packet = pendingPackets.front();
             pendingPackets.clear();
         } else {
-            if (!ffWrapper->readPacket(packet)) {
-                isEOS = true;
+            if (!ffWrapper->readPacket(packet, &isEOS)) {
                 videoSink->sendEvent(Event(EVENT_EOS));
                 audioSink->sendEvent(Event(EVENT_EOS));
                 continue;

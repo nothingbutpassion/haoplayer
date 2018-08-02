@@ -65,7 +65,7 @@ struct States {
         this->next = next;
         this->pending = pending;
     }
-    void set(State& current, State& next, State& pending) {
+    void get(State& current, State& next, State& pending) {
         std::unique_lock<std::mutex> lock(m);
         current = this->current;
         next = this->next;
