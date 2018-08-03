@@ -66,16 +66,29 @@ public:
             LOGD("write: window: width=%d, height=%d, stride=%d, format=%d",
                  buffer.width, buffer.height, buffer.stride, buffer.format);
             if (buffer.width > 0 && buffer.height > 0) {
+                // adjust display width/height based on video width/height
+                int W = buffer.width;
+                int H = buffer.height;
+                int offset = 0;
+                if (buffer.width*frame->height > frame->width*buffer.height) {
+                    W = buffer.height*frame->width/frame->height;
+                    offset = (buffer.width - W)*4/2;
+                } else {
+                    H = buffer.width*frame->height/frame->width;
+                    offset = (buffer.height - H)*buffer.stride*4/2;
+                }
+
                 // set video scale context
                 if (width != buffer.width || height != buffer.height || format != buffer.format) {
-                    ffWrapper->setVideoScale(frame, buffer.width, buffer.height, AV_PIX_FMT_RGBA);
+                    //ffWrapper->setVideoScale(frame, buffer.width, buffer.height, AV_PIX_FMT_RGBA);
+                    ffWrapper->setVideoScale(frame, W, H, AV_PIX_FMT_RGBA);
                     width = buffer.width;
                     height = buffer.height;
                     format = buffer.format;
                 }
                 // scale video
                 int dst_linesize = buffer.stride * 4;
-                uint8_t* dst_data = static_cast<uint8_t*>(buffer.bits);
+                uint8_t* dst_data = static_cast<uint8_t*>(buffer.bits) + offset;
 
                 using namespace std::chrono;
                 system_clock::time_point tp = system_clock::now();

@@ -107,13 +107,21 @@ FFWrapper::~FFWrapper() {
 }
 
 
-bool FFWrapper::readPacket(AVPacket& packet) {
+bool FFWrapper::readPacket(AVPacket& packet, bool* isEOF) {
     // initialize packet, set data to nullptr, let the demuxer fill it
     av_init_packet(&packet);
     packet.data = nullptr;
     packet.size = 0;
-    if (av_read_frame(formatContext, &packet) < 0) {
-        LOGE("av_read_frame failed");
+    int ret = av_read_frame(formatContext, &packet);
+    if (ret < 0) {
+        if (ret == AVERROR_EOF) {
+            LOGE("av_read_frame failed: end of file");
+            if (isEOF) {
+                *isEOF = true;
+            }
+        } else {
+            LOGE("av_read_frame failed: %d", ret);
+        }
         return false;
     }
     LOGD("readPacket ok");
@@ -366,7 +374,7 @@ void FFWrapper::close() {
 
 bool FFWrapper::seek(int64_t timestamp) {
     // NOTES: timestamp is in AV_TIME_BASE units
-    if (av_seek_frame(formatContext, -1, timestamp, 0) < 0) {
+    if (av_seek_frame(formatContext, -1, timestamp, AVSEEK_FLAG_BACKWARD) < 0) {
         LOGE("av_seek_frame(timestamp=%llu) failed", timestamp);
         return false;
     }

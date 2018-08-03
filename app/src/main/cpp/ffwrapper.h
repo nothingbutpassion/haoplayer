@@ -35,7 +35,7 @@ public:
     void close();
     // NOTES: in AV_TIME_BASE fractional seconds
     bool seek(int64_t timestamp);
-    bool readPacket(AVPacket& packet);
+    bool readPacket(AVPacket& packet, bool* isEOF = nullptr);
 
     // video related
     bool decodeVideo(const AVPacket& packet, AVFrame** frame, int* decoded = nullptr);
