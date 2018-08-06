@@ -75,7 +75,7 @@ public:
                     offset = (buffer.width - W)*4/2;
                 } else {
                     H = buffer.width*frame->height/frame->width;
-                    offset = (buffer.height - H)*buffer.stride*4/2;
+                    //offset = (buffer.height - H)*buffer.stride*4/2;
                 }
 
                 // set video scale context
@@ -93,6 +93,45 @@ public:
                 using namespace std::chrono;
                 system_clock::time_point tp = system_clock::now();
                 ffWrapper->scaleVideo(frame, &dst_data, &dst_linesize);
+
+                if (H < buffer.height) {
+                    int h = (buffer.height - H)/2;
+                    dst_data += h*buffer.stride*4;
+                    ffWrapper->scaleVideo(frame, &dst_data, &dst_linesize);
+                    dst_data += h*buffer.stride*4;
+                    ffWrapper->scaleVideo(frame, &dst_data, &dst_linesize);
+
+                    for (int j=0; j < buffer.height; j++) {
+                        dst_data = static_cast<uint8_t*>(buffer.bits) + j*buffer.stride*4;
+                        for (int i=0; i < buffer.width; i++) {
+                            if (j < h) {
+                                if (i < buffer.width/2) {
+                                    dst_data[4*i+1] = 0;
+                                    dst_data[4*i+2] = 0;
+                                } else {
+                                    dst_data[4*i] = 0;
+                                }
+                            } else if (j < 2*h) {
+                                if (i < buffer.width/2) {
+                                    dst_data[4*i] = 0;
+                                    dst_data[4*i+2] = 0;
+                                } else {
+                                    dst_data[4*i+1] = 0;
+                                }
+
+                            } else {
+                                if (i < buffer.width/2) {
+                                    dst_data[4*i] = 0;
+                                    dst_data[4*i+1] = 0;
+                                } else {
+                                    dst_data[4*i+2] = 0;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
                 system_clock::duration d = system_clock::now() - tp;
                 LOGD("scaleVideo duration is %lldms", duration_cast<milliseconds>(d).count());
                 writed = dst_linesize * frame->height;
