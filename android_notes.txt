@@ -120,3 +120,6 @@ ConstraintLayout: 近似RelativeLayout（通过view之间，view与parent之间�
 3）Update widge Notes
 Set/Update widge should in Main/UI thread.
 
+4）默认情况下横竖屏切换时会重新调用activity的生命周期函数，解决方法是AndroidManifest.xml中设置<activity>属性：
+android:configChanges="orientation|screenSize“，设置后只会调用onConfigurationChanged()
+
