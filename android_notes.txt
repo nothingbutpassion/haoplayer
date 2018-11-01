@@ -1,8 +1,11 @@
 1. Android Studio Quick Short
-Ctrl + shift + A    search command
+Shift + Shift       search everything
+Ctrl + Shift + A    search command
 Ctrl + F 			search in the current file
 Ctrl + Shift + F	search any string in whole project
+Ctrl + Shift + N	go to file
 Ctrl + R            replace
+Ctrl + E            recent files
 
 Ctrl + H			class hierarchy
 Ctrl + F12			list outline of current file
@@ -42,7 +45,10 @@ Select project/file -> right click -> Optimize Imports
    adb shell setprop log.tag.MyAppTag DEBU
    adb shell getprop log.tag.MyAppTag
    注：也可通过System.setProperty()编程方式设置？
-   
+
+4）注意gradle版本, compile/min/target SDK版本的设置（需要gradle版本与SDK版本兼容，否则Build时出现问题）
+   <project-root>/build.gradle
+   <project-root>/app/build.gradle
 
 3. 设置代理
 <project-root>/gradle.properties中添加（如下例所示）
