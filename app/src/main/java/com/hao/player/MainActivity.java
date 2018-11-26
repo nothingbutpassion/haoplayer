@@ -1,11 +1,14 @@
 package com.hao.player;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -17,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -35,6 +39,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Request permissions
+        requestPermissions();
 
         // Request full screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -205,6 +212,43 @@ public class MainActivity extends Activity {
             isPlaying = false;
         }
         stopThread = true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int result: grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,  permissions + "is not granted!", Toast.LENGTH_LONG).show();
+                finish();
+                return;
+            }
+        }
+
+        // Reload the activity with permission granted
+        Toast.makeText(this, "Permission is granted.", Toast.LENGTH_SHORT).show();
+        finish();
+        startActivity(getIntent());
+    }
+
+    private  boolean requestPermissions() {
+        boolean granted = true;
+        String[] permissisons = new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        // Check permissions
+        for (String permission: permissisons) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                granted = false;
+            }
+        }
+        // Request permissions
+        if (!granted) {
+            ActivityCompat.requestPermissions(this, permissisons, 0);
+            return false;
+        }
+        return true;
     }
 
 
