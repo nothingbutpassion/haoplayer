@@ -18,21 +18,23 @@ JNIEnv* getJNIEnv(void) {
         return 0;
     }
     if (!pthread_getspecific(gThreadKey)) {
+        // Set the key, so that gJavaVM->DetachCurrentThread() will be called at this thread exit.
         pthread_setspecific(gThreadKey, env);
     }
     return env;
 }
 
-void setupThread(void) {
-    pthread_setspecific(gThreadKey, (void*)getJNIEnv());
-}
-
-static void destoryThread(void* value) {
-    JNIEnv* env = static_cast<JNIEnv*>(value);
-    if (env) {
+// NOTES:
+// At thread exit, if a key value has a non-NULL destructor pointer, and the thread has a non-NULL value
+// associated with that key, the value of the key is set to NULL, and then the function pointed to is called
+// with the previously associated value as its sole argument
+// see http://pubs.opengroup.org/onlinepubs/007904975/functions/pthread_key_create.html
+static void onThreadExit(void* value) {
+//    JNIEnv* env = static_cast<JNIEnv*>(value);
+//    if (env) {
         gJavaVM->DetachCurrentThread();
-        pthread_setspecific(gThreadKey, 0);
-    }
+//        pthread_setspecific(gThreadKey, 0);
+//    }
 }
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -43,7 +45,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         LOGE("Failed to get the environment using GetEnv()");
         return -1;
     }
-    if (pthread_key_create(&gThreadKey, destoryThread)) {
+    if (pthread_key_create(&gThreadKey, onThreadExit)) {
         LOGE("Error initializing pthread key");
     } else {
         //setupThread();

@@ -5,5 +5,4 @@ local.*
 .idea/
 app/build/
 app/.externalNativeBuild/
-app/libs/
 
