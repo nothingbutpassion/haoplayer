@@ -39,6 +39,6 @@ struct Element {
     virtual int setState(State state) = 0;
     virtual State getState() = 0;
     
-    virtual int sendEvent(const Event& event) = 0;
-    virtual int pushBuffer(const Buffer& buffer) = 0;
+    virtual int onEvent(const Event& event) = 0;
+    virtual int onBuffer(const Buffer& buffer) = 0;
 };

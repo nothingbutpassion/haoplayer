@@ -27,8 +27,8 @@ public:
         return states.getCurrent();
     }
     
-    int sendEvent(const Event& event) override;
-    int pushBuffer(const Buffer& buffer) override;
+    int onEvent(const Event& event) override;
+    int onBuffer(const Buffer& buffer) override;
 
 public:
     void setEngine(FFWrapper* ffWrapper) {
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    int toIdle();
+    int toNull();
     int toReady();
     int toPaused();
     int toPlaying();

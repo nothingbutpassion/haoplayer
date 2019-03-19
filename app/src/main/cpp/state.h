@@ -5,28 +5,28 @@
 #include <stdio.h>
 
 enum State {
-    IDLE,
-    READY,
-    PAUSED,
-    PLAYING
+    STATE_NULL,
+    STATE_READY,
+    STATE_PAUSED,
+    STATE_PLAYING
 };
 
 inline std::string toString(State s) {
     const char* states[] = {
-        "IDLE", 
-        "READY", 
-        "PAUSED",
-        "PLAYING"
+        "STATE_NULL",
+        "STATE_READY",
+        "STATE_PAUSED",
+        "STATE_PLAYING"
     };
     return states[s];
 }
 
 inline const char* cstr(State s) {
     const char* states[] = {
-        "IDLE", 
-        "READY", 
-        "PAUSED",
-        "PLAYING"
+        "STATE_NULL",
+        "STATE_READY",
+        "STATE_PAUSED",
+        "STATE_PLAYING"
     };
     return states[s];
 }
@@ -73,9 +73,9 @@ struct States {
     }
     
 private:
-    State current = IDLE;
-    State next = IDLE;
-    State pending = IDLE;
+    State current = STATE_NULL;
+    State next = STATE_NULL;
+    State pending = STATE_NULL;
     std::mutex m;
 };
 
