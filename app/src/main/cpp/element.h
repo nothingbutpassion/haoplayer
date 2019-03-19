@@ -38,7 +38,15 @@ struct Element {
 
     virtual int setState(State state) = 0;
     virtual State getState() = 0;
+    //
+    //  Helper function used for checking whether is it valid from current to next
+    //
+    bool checkState(State current, State next) {
+        return (next - current == 1 || current - next == 1);
+    }
+
     
     virtual int onEvent(const Event& event) = 0;
     virtual int onBuffer(const Buffer& buffer) = 0;
 };
+

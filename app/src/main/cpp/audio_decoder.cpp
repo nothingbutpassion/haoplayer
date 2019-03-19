@@ -80,77 +80,53 @@ AudioDecoder::~AudioDecoder() {
 
 int AudioDecoder::toNull() {
     State current = states.getCurrent();
-    if (current == STATE_NULL) {
-        LOGW("toNull: current state is STATE_NULL");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_NULL)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
-    if (current != STATE_READY) {
-        LOGE("toNull failed: current state is %s", cstr(current));
-        return STATUS_FAILED;  
-    }
-
     states.setCurrent(STATE_NULL);
     return STATUS_SUCCESS;
 }
 
 int AudioDecoder::toReady() {
     State current = states.getCurrent();
-    if (current == STATE_READY) {
-        LOGW("toReady: current state is STATE_READY");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_READY)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
     if (current == STATE_NULL) {
         states.setCurrent(STATE_READY);
         return STATUS_SUCCESS;
-    } 
-    
-    if (current == STATE_PAUSED) {
-        onEvent(EVENT_STOP_THREAD);
-        decodingThread.join();
-        states.setCurrent(STATE_READY);
-        return STATUS_SUCCESS;
-    } 
-
-    LOGE("toReady failed: current state is %s", cstr(current));
-    return STATUS_FAILED;
+    }
+    // current == STATE_PAUSED)
+    onEvent(EVENT_STOP_THREAD);
+    decodingThread.join();
+    states.setCurrent(STATE_READY);
+    return STATUS_SUCCESS;
 }
 
 int AudioDecoder::toPaused() {
     State current = states.getCurrent();
-    if (current == STATE_PAUSED) {
-        LOGW("toReady: current state is STATE_PAUSED");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_PAUSED)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
     if (current == STATE_READY) {
         decodingThread = std::thread(&AudioDecoder::decoding, this);
         states.setCurrent(STATE_PAUSED);
         return STATUS_SUCCESS;
-    } 
-    
-    if (current == STATE_PLAYING) {
-        states.setCurrent(STATE_PAUSED);
-        return STATUS_SUCCESS;
-    } 
-
-    LOGE("toPaused failed: current state is %s", cstr(current));
-    return STATUS_FAILED;
+    }
+    // current == STATE_PLAYING)
+    states.setCurrent(STATE_PAUSED);
+    return STATUS_SUCCESS;
 }
 
 int AudioDecoder::toPlaying() {
     State current = states.getCurrent();
-    if (current == STATE_PLAYING) {
-        LOGW("toPlaying: current state is STATE_PLAYING");
-        return STATUS_SUCCESS;
-    }
-
-    if (current != STATE_PAUSED) {
-        LOGE("toPlaying failed: current state is %s", cstr(current));
+    if (!checkState(current, STATE_PLAYING)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
         return STATUS_FAILED;
     }
-
     states.setCurrent(STATE_PLAYING);
     return STATUS_SUCCESS;
 }

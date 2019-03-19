@@ -77,28 +77,21 @@ void Demuxer::demuxing() {
 
 int Demuxer::toNull() {
     State current = states.getCurrent();
-    if (current == STATE_NULL) {
-        LOGW("toReady: current state is STATE_NULL");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_NULL)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
-    if (current == STATE_READY) {
-        ffWrapper->close();
-        states.setCurrent(STATE_NULL);
-        return STATUS_SUCCESS;
-    }
-
-    LOGE("toReady failed: current state is %s", cstr(current));
-    return STATUS_FAILED;
+    ffWrapper->close();
+    states.setCurrent(STATE_NULL);
+    return STATUS_SUCCESS;
 }
 
 int Demuxer::toReady() {
     State current = states.getCurrent();
-    if (current == STATE_READY) {
-        LOGW("toReady: current state is STATE_READY");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_READY)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
     if (current == STATE_NULL) {
         if (!ffWrapper->open(url.c_str())) {
             LOGE("toReady failed: can't open %s", url.c_str());
@@ -107,45 +100,34 @@ int Demuxer::toReady() {
         }
         states.setCurrent(STATE_READY);
         return STATUS_SUCCESS;
-    } 
-    
-    if (current == STATE_PAUSED) {
-        onEvent(Event(EVENT_STOP_THREAD));
-        demuxingThread.join();
-        states.setCurrent(STATE_READY);
-        return STATUS_SUCCESS;
-    } 
-
-    LOGE("toReady failed: current state is %s", cstr(current));
-    return STATUS_FAILED;
+    }
+    // current == STATE_PAUSED
+    onEvent(Event(EVENT_STOP_THREAD));
+    demuxingThread.join();
+    states.setCurrent(STATE_READY);
+    return STATUS_SUCCESS;
 }
 
 int Demuxer::toPaused() {
     State current = states.getCurrent();
-    if (current == STATE_PAUSED) {
-        LOGW("toReady: current state is STATE_PAUSED");
-        return STATUS_SUCCESS;
+    if (!checkState(current, STATE_PAUSED)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
+        return STATUS_FAILED;
     }
-
     if (current == STATE_READY) {
         demuxingThread = std::thread(&Demuxer::demuxing, this);
         states.setCurrent(STATE_PAUSED);
         return STATUS_SUCCESS;
-    } 
-    
-    if (current == STATE_PLAYING) {
-        states.setCurrent(STATE_PAUSED);
-        return STATUS_SUCCESS;
-    } 
-
-    LOGE("toPaused failed: current state is %s", cstr(current));
-    return STATUS_FAILED;
+    }
+    // current == STATE_PLAYING)
+    states.setCurrent(STATE_PAUSED);
+    return STATUS_SUCCESS;
 }
 
 int Demuxer::toPlaying() {
     State current = states.getCurrent();
-    if (current != STATE_PAUSED) {
-        LOGW("toPlaying: current state is STATE_PAUSED");
+    if (!checkState(current, STATE_PLAYING)) {
+        LOGE("%s failed: current state is %s", __func__, cstr(current));
         return STATUS_FAILED;
     }
     states.setCurrent(STATE_PLAYING);
