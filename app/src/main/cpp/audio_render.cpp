@@ -32,7 +32,7 @@ void AudioRender::rendering() {
         }
 
         // Current is STATE_PAUSED
-        if (states.getCurrent() == STATE_PAUSED) {
+        if (!firstFrame && states.getCurrent() == STATE_PAUSED) {
             audioDevice->pause();
             LOGD("rendering: current state is STATE_PAUSED, will sleep 10ms");
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -55,10 +55,12 @@ void AudioRender::rendering() {
         if (firstFrame) {
             firstFrame = false;
             static_cast<AudioDeviceClock*>(clock)->setOffset(frame->pts * ffWrapper->audioTimeBase() * 1000000);
+            ffWrapper->freeFrame(frame);
+        } else {
+            audioDevice->play();
+            audioDevice->write(frame, sizeof(AVFrame));
+            LOGD("rendering: clock running time is %lld", clock->runningTime()/1000);
         }
-        audioDevice->play();
-        audioDevice->write(frame, sizeof(AVFrame));
-        LOGD("rendering: clock running time is %lld", clock->runningTime()/1000);
     }
 }
 

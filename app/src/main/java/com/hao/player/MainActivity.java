@@ -11,8 +11,10 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -85,6 +87,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT
         ));
         linearLayout.setGravity(Gravity.CENTER);
+        linearLayout.setPadding(8, 8, 8, 8);
 
         FrameLayout frameLayout = new FrameLayout(this);
         frameLayout.addView(playbackSurface, new FrameLayout.LayoutParams(
@@ -96,6 +99,33 @@ public class MainActivity extends Activity {
                 Gravity.BOTTOM
         ));
         setContentView(frameLayout);
+        
+        playbackSurface.setOnTouchListener(new View.OnTouchListener() {
+            private long downTime;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downTime = System.currentTimeMillis();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (System.currentTimeMillis() - downTime < 500) {
+                            if (surfaceCreated) {
+                                if (isPlaying) {
+                                    Player.pause();
+                                } else {
+                                    Player.play();
+                                }
+                                isPlaying = !isPlaying;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
 
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -108,19 +138,17 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         while (!stopThread) {
-                            if (isPlaying) {
-                                int pos = Player.getPosition();
-                                int du = Player.getDuration();
-                                Message msg = Message.obtain();
-                                msg.arg1 = pos;
-                                msg.arg2 = du;
-                                msg.what = 11;
-                                handler.sendMessage(msg);
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                            int pos = Player.getPosition();
+                            int du = Player.getDuration();
+                            Message msg = Message.obtain();
+                            msg.arg1 = pos;
+                            msg.arg2 = du;
+                            msg.what = 11;
+                            handler.sendMessage(msg);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -166,9 +194,10 @@ public class MainActivity extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (surfaceCreated) {
                     Player.seek(1000*mProgress);
-                    isPlaying = false;
-                    Player.play();
-                    isPlaying = true;
+                    if (isPlaying)
+                        Player.play();
+                    else
+                        Player.pause();
                 }
             }
         });

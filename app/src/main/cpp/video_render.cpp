@@ -10,6 +10,7 @@
 void VideoRender::rendering() {
     LOGD("rendering: thread started");
     bool pendingEOS = false;
+    bool firstFrame = true;
     for (;;) {
         // Handle events
         Event ev;
@@ -31,7 +32,7 @@ void VideoRender::rendering() {
         }
 
         // Current is PAUSE
-        if (states.getCurrent() == STATE_PAUSED) {
+        if (!firstFrame && states.getCurrent() == STATE_PAUSED) {
             LOGD("rendering: current state is STATE_PAUSED, will sleep 10ms");
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
@@ -49,6 +50,14 @@ void VideoRender::rendering() {
             LOGW("rendering, buffer queue is empty");
             continue;
         }
+
+        // Always draw the first frame
+        if (firstFrame) {
+            firstFrame = false;
+            videoDevice->write(frame, sizeof(AVFrame));
+            continue;
+        }
+
         // Sync video displaying based on the given clock
         using namespace std::chrono;
         system_clock::time_point tp = system_clock::now();
@@ -87,7 +96,7 @@ void VideoRender::rendering() {
             }
         }
         system_clock::duration d = system_clock::now() - tp;
-        LOGT("rendering: clock=%lldms, duration is %lldms",
+        LOGD("rendering: clock=%lldms, duration is %lldms",
              clock->runningTime()/1000, duration_cast<milliseconds>(d).count());
     }
 }
