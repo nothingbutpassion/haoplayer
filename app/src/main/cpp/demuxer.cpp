@@ -96,6 +96,7 @@ int Demuxer::toReady() {
         if (!ffWrapper->open(url.c_str())) {
             LOGE("toReady failed: can't open %s", url.c_str());
             bus->sendMessage(Message(MESSAGE_ERROR_SOURCE, this));
+            ffWrapper->close();
             return STATUS_FAILED;
         }
         states.setCurrent(STATE_READY);

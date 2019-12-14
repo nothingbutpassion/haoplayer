@@ -26,7 +26,7 @@ import java.io.File;
 
 public class MainActivity extends Activity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "haoplayer";
     private boolean isPlaying = false;
     private boolean surfaceCreated = false;
     private boolean stopThread = false;
@@ -58,31 +58,6 @@ public class MainActivity extends Activity {
         SurfaceView playbackSurface = new SurfaceView(this);
         SurfaceHolder holder = playbackSurface.getHolder();
         holder.setFormat(PixelFormat.RGBA_8888);
-        holder.addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                Log.i(TAG, "surfaceCreated");
-                surfaceCreated = true;
-                Player.setSurface(holder.getSurface());
-            }
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                Log.i(TAG, "surfaceChanged");
-                if (!isPlaying) {
-                    Player.play();
-                    isPlaying = true;
-                }
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                Log.i(TAG, "surfaceDestroyed");
-                if (isPlaying) {
-                    Player.stop();
-                }
-                surfaceCreated = false;
-            }
-        });
 
         position = new TextView(this);
         position.setText(" 00:00 ");
@@ -121,6 +96,55 @@ public class MainActivity extends Activity {
                 Gravity.BOTTOM
         ));
         setContentView(frameLayout);
+
+        holder.addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.i(TAG, "surfaceCreated");
+                surfaceCreated = true;
+                Player.setSurface(holder.getSurface());
+                stopThread = false;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (!stopThread) {
+                            if (isPlaying) {
+                                int pos = Player.getPosition();
+                                int du = Player.getDuration();
+                                Message msg = Message.obtain();
+                                msg.arg1 = pos;
+                                msg.arg2 = du;
+                                msg.what = 11;
+                                handler.sendMessage(msg);
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }).start();
+            }
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.i(TAG, "surfaceChanged");
+                if (!isPlaying) {
+                    Player.play();
+                    isPlaying = true;
+                }
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.i(TAG, "surfaceDestroyed");
+                if (isPlaying) {
+                    Player.stop();
+                }
+                stopThread = false;
+                surfaceCreated = false;
+            }
+        });
 
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -170,46 +194,18 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
-        if (surfaceCreated && !isPlaying) {
-            Player.play();
-            isPlaying = true;
-        }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                stopThread = false;
-                while (!stopThread) {
-                    if (surfaceCreated && isPlaying) {
-                        int pos = Player.getPosition();
-                        int du = Player.getDuration();
-                        Message msg = Message.obtain();
-                        msg.arg1 = pos;
-                        msg.arg2 = du;
-                        msg.what = 11;
-                        handler.sendMessage(msg);
-                        try {
-                            Thread.sleep(1000);
-                        }
-                        catch (Exception e) {
-
-                        }
-
-                    }
-                }
-            }
-        }).start();
     }
 
     @Override
     protected void onPause() {
+        Log.d(TAG, "onPause");
         super.onPause();
-        if (surfaceCreated && isPlaying) {
+        if (isPlaying) {
             Player.pause();
             isPlaying = false;
         }
-        stopThread = true;
     }
 
     @Override

@@ -361,14 +361,17 @@ bool FFWrapper::open(const char* url) {
 void FFWrapper::close() {
     if (videoCodecContext) {
         avcodec_free_context(&videoCodecContext);
+        videoCodecContext = nullptr;
         videoIndex = -1;
     }
     if (audioCodecContext) {
         avcodec_free_context(&audioCodecContext);
+        audioCodecContext = nullptr;
         audioIndex = -1;
     }
     if (formatContext) {
         avformat_close_input(&formatContext);
+        formatContext = nullptr;
     }
 }
 
